@@ -1,0 +1,28 @@
+name: Copy Image to EC2
+
+on:
+  push:
+    paths:
+      - 'images/**'
+
+jobs:
+  copy_image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: List files in directory
+        run: ls -la images/
+
+      - name: Check if image exists
+        run: |
+          IMAGE=$(find images/ -type f | head -n 1)
+          if [ -n "$IMAGE" ]; then
+            echo "Image found: $IMAGE"
+            echo "Copying image to EC2..."
+            scp -i ${{ secrets.EC2_SSH_PRIVATE_KEY }} $IMAGE images/*.* ec2-user@44.201.127.66:/fotos
+          else
+            echo "No image found to copy."
+          fi
