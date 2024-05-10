@@ -1,4 +1,4 @@
-# Agora vai
+# Agora vai 2
 name: automacao_imagens
 run-name: ${{ github.actor }} Pipeline deploy 🫡
 on:
