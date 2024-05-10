@@ -33,6 +33,6 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ssh_key.pem
 
           chmod 600 ssh_key.pem
-          scp -i ssh_key.pem images/* ec2-user@44.204.65.68:/root/fotos
+          scp -i ssh_key.pem images/* ec2-user@44.204.65.68:/home/ec2-user/fotos
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
