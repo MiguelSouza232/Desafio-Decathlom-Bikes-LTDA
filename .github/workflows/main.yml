@@ -1,28 +1,38 @@
-name: Copy Image to EC2
-
+# Agora vai
+name: automacao_imagens
+run-name: ${{ github.actor }} Pipeline deploy 🫡
 on:
   push:
+    branches:
+      - "main"
     paths:
-      - 'images/**'
-
+      - images/**
+      - .github/workflows/main.yml
 jobs:
-  copy_image:
+  githubactions-bike:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: List files in directory
-        run: ls -la images/
+      - name: Instalar SSH
+        run: sudo apt-get install -y ssh openssh-client
 
-      - name: Check if image exists
+      - name: Adicionar EC2 ao known-hosts
         run: |
-          IMAGE=$(find images/ -type f | head -n 1)
-          if [ -n "$IMAGE" ]; then
-            echo "Image found: $IMAGE"
-            echo "Copying image to EC2..."
-            scp -i ${{ secrets.EC2_SSH_PRIVATE_KEY }} $IMAGE images/*.* ec2-user@44.201.127.66:/fotos
-          else
-            echo "No image found to copy."
-          fi
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ''
+          ssh-keyscan -H 35.153.179.210 >> ~/.ssh/known_hosts
+
+      - name: Verificar a chave
+        run: echo "$SSH_PRIVATE_KEY"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: Copiar imagens para maquina remota
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+
+          chmod 600 ssh_key.pem
+          scp -i ssh_key.pem images/* ec2-user@44.204.65.68:/home/ec2-user/efs
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
